@@ -4,8 +4,8 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import bgVideo from "./assets/main4.mp4";
-import sideproj1 from "./assets/sideproj1.jpg";
-import sideproj2 from "./assets/sideproj2.jpg";
+import sideproj1 from "./assets/sideproj1.JPG";
+import sideproj2 from "./assets/sideproj2.JPG";
 import sideproj3 from "./assets/sideproj3.png";
 
 const CHARS = [char1, char2, char3, char1];

@@ -4,10 +4,10 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import bgVideo from "./assets/main5.mp4";
-import article1 from "./assets/article1.jpg";
-import article2 from "./assets/article2.jpg";
-import article3 from "./assets/article3.jpg";
-import article4 from "./assets/article4.jpg";
+import article1 from "./assets/article1.JPG";
+import article2 from "./assets/article2.JPG";
+import article3 from "./assets/article3.JPG";
+import article4 from "./assets/article4.JPG";
 
 const CHARS = [char1, char2, char3, char1];
 
