@@ -24,10 +24,8 @@ dist-ssr
 *.sw?
 
 .claude/
-public/*.mp3
 .vercel
 .codex
 .git
 yt-dlp.exe
-*.mp4
 .eslintcache
