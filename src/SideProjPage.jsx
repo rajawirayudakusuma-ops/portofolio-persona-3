@@ -4,14 +4,16 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import bgVideo from "./assets/main4.mp4";
-import sideproj1 from "./assets/sideproj1.JPG";
-import sideproj2 from "./assets/sideproj2.JPG";
+import sideproj1 from "./assets/sideproj1.jpg";
+import sideproj2 from "./assets/sideproj2.jpg";
 import sideproj3 from "./assets/sideproj3.png";
+import sideproj4 from "./assets/sideproj4.png";
 
 const CHARS = [char1, char2, char3, char1];
 
 const ROLES = [
   { text: "LEADER" },
+  { text: "PARTY" },
   { text: "PARTY" },
   { text: "PARTY" },
   { text: "PARTY" },
@@ -46,12 +48,21 @@ const PROJECTS = [
     image: sideproj2,
   },
   {
+    id: "sideproj4",
+    category: "DOKUMENTER",
+    media: "FILM DOKUMENTER",
+    title: "Bobotoh Saalam Dunya",
+    description: "Film Mengenai Kecintaan Bobotoh terhadap Persib Bandung",
+    url: "https://drive.google.com/file/d/1X3RcIFTOsmyS5vel77bYP3UjxZ7tDyO4/view?usp=sharing",
+    image: sideproj4,
+  },
+  {
     id: "other",
     category: "LAINNYA",
     media: "SIDE PROJECT",
     title: "Project Lainnya",
     description: "Berbagai kegiatan dan project sampingan",
-    url: "https://www.instagram.com/",
+    url: "https://drive.google.com/drive/folders/1NJJj1_fWZhL23KqNYr8Ff1yevdATBd8T?usp=sharing",
   },
 ];
 

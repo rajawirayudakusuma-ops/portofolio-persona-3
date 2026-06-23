@@ -1,13 +1,12 @@
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-const menuVideo = '/Mainn.mp4'
-const main1 = '/main1.mp4'
-const main2 = '/main2.mp4'
-const main3 = '/main3.mp4'
-const main4 = '/main4.mp4'
-const main5 = '/main5.mp4'
-const main6 = '/main6.mp4'
+import main1 from './assets/main1.mp4'
+import main2 from './assets/main2.mp4'
+import main3 from './assets/main3.mp4'
+import main4 from './assets/main4.mp4'
+import main5 from './assets/main5.mp4'
+import main6 from './assets/main6.mp4'
 import P3Menu from './P3Menu'
 import VideoPage from './VideoPage'
 import ResumePage from './ResumePage'
@@ -18,8 +17,9 @@ import ArticlePage from './ArticlePage'
 import SideProjPage from './SideProjPage'
 import './App.css'
 
-// Module-level persistent audio element
+// Module-level persistent audio element and mute state
 let bgmAudio = null;
+let bgmIsMuted = true; // Track mute state globally
 
 function initializeBGM() {
   if (bgmAudio) return bgmAudio;
@@ -37,6 +37,8 @@ function initializeBGM() {
 function startBGMPlayback() {
   if (!bgmAudio) bgmAudio = initializeBGM();
   
+  if (bgmIsMuted) return; // Don't play if muted
+  
   if (bgmAudio.paused) {
     bgmAudio.play()
       .then(() => console.log('BGM started'))
@@ -53,10 +55,12 @@ function stopBGMPlayback() {
 function toggleBGM() {
   if (!bgmAudio) bgmAudio = initializeBGM();
   
-  if (bgmAudio.paused) {
-    startBGMPlayback();
-  } else {
+  bgmIsMuted = !bgmIsMuted; // Toggle global mute state
+  
+  if (bgmIsMuted) {
     stopBGMPlayback();
+  } else {
+    startBGMPlayback();
   }
 }
 
@@ -65,7 +69,8 @@ function MuteButton() {
 
   useEffect(() => {
     const handleToggle = () => {
-      setIsMuted(prev => !prev);
+      const newState = !bgmIsMuted;
+      setIsMuted(newState);
       toggleBGM();
     };
 
@@ -103,7 +108,7 @@ function MuteButton() {
         e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
       }}
     >
-      {isMuted ? '🔇 BGM' : '🔊 BGM'}
+      {bgmIsMuted ? '🔇 BGM' : '🔊 BGM'}
     </button>
   );
 }
@@ -119,6 +124,18 @@ function MenuScreen() {
 
 function AnimatedRoutes() {
   const location = useLocation()
+  
+  useEffect(() => {
+    // Resume BGM after page transition (only if not muted)
+    setTimeout(() => {
+      if (!bgmIsMuted && bgmAudio && bgmAudio.paused) {
+        bgmAudio.play()
+          .then(() => console.log('BGM resumed after route change'))
+          .catch(err => console.log('BGM resume blocked:', err));
+      }
+    }, 100);
+  }, [location.pathname]);
+  
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>

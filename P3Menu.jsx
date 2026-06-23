@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import bgMenuVideo from "./src/assets/bg.mp4";
 
 const ITEMS = [
   { id: "about",  label: "ABOUT ME",    href: "#about",  fontSize: 130, offsetX: 0,  offsetY: 0  },
@@ -170,7 +171,7 @@ export default function P3Menu() {
       `}</style>
 
       <div className="p3-root">
-        <video className="p3-video" src="/bg.mp4" autoPlay loop muted playsInline />
+        <video className="p3-video" src={bgMenuVideo} autoPlay loop muted playsInline />
         <div className="p3-circle" />
         <div className="p3-bg-word">SYSTEM</div>
         <div className="p3-scanlines" />

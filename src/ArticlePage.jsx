@@ -4,15 +4,17 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import bgVideo from "./assets/main5.mp4";
-import article1 from "./assets/article1.JPG";
-import article2 from "./assets/article2.JPG";
-import article3 from "./assets/article3.JPG";
-import article4 from "./assets/article4.JPG";
+import article1 from "./assets/article1.jpg";
+import article2 from "./assets/article2.jpg";
+import article3 from "./assets/article3.jpg";
+import article4 from "./assets/article4.jpg";
+import article5 from "./assets/article5.png";
 
-const CHARS = [char1, char2, char3, char1];
+const CHARS = [char1, char2, char3, char1, char2];
 
 const ROLES = [
   { text: "LEADER" },
+  { text: "PARTY" },
   { text: "PARTY" },
   { text: "PARTY" },
   { text: "PARTY" },
@@ -43,8 +45,14 @@ const ARTICLES = [
     category: "OPINI",
     image: article3,
   },
-  {
-    id: "detik",
+  {id: "bandung2",
+    media: "BANDUNG BERGERAK",
+    title: "Membaca Data Meningkatnya Kekerasan Seksual di Bandung, Pelecehan Sering Berawal dari Hal yang Dianggap Sepele",
+    url: "https://bandungbergerak.id/article/detail/1546036620/membaca-data-meningkatnya-kekerasan-seksual-di-bandung-pelecehan-sering-berawal-dari-hal-yang-dianggap-sepele",
+    category: "NARASI",
+    image: article5,
+  },
+  {id: "detik",
     media: "DETIK JABAR",
     title: "Merawat Tradisi Toleransi di Gang Luna Bandung",
     url: "https://www.detik.com/jabar/jabar-gaskeun/d-8273744/merawat-tradisi-toleransi-di-gang-luna-bandung",
