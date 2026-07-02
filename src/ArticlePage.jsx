@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
-import bgVideo from "./assets/main5.mp4";
+import { ARTICLE_VIDEO_SRC } from "./mediaPaths";
 import article1 from "./assets/article1.jpg";
 import article2 from "./assets/article2.jpg";
 import article3 from "./assets/article3.jpg";

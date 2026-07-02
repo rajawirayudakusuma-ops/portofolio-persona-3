@@ -3,13 +3,19 @@ import { useNavigate } from "react-router-dom";
 import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
-import bgVideo from "./assets/main3.mp4";
+import { SOCIALS_VIDEO_SRC } from "./mediaPaths";
 import newsign from "./assets/newsign.png";
 import icon1 from "./assets/icon1.png";
 import icon2 from "./assets/icon2.png";
 import icon3 from "./assets/icon3.png";
 
 const CHARS = [char1, char2, char3];
+
+const normalizeExternalUrl = (value) => {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text) return "";
+  return /^https?:\/\//i.test(text) ? text : `https://${text}`;
+};
 
 const ROLES = [
   { text: "LEADER", color: "#e8c100", bg: "rgba(232,193,0,0.12)", border: "rgba(232,193,0,0.5)" },
@@ -19,7 +25,7 @@ const ROLES = [
 
 const ITEMS = [
   {
-    id: "X", label: "X", handle: "@kuekongguan", href: "https://x.com/kuekongguan", 
+    id: "X", label: "X", handle: "@kuekongguan", href: "https://x.com/kuekongguan", icon: "✕", barIcon: icon1, bars: 1, newBars: [], counts: ["0"],
     links: ["https://x.com/kuekongguan"],
     stats: [
       { tag: "FOL", value: "8", color: "#9147ff" },
@@ -35,7 +41,7 @@ const ITEMS = [
     ],
   },
   {
-    id: "tiktok", label: "TIKTOK", handle: "@keripiksingkong900", href: "https://www.tiktok.com/@keripiksingkong900", 
+    id: "tiktok", label: "TIKTOK", handle: "@keripiksingkong900", href: "https://www.tiktok.com/@keripiksingkong900", icon: "🎵", barIcon: icon3, bars: 1, newBars: [], counts: ["0"],
     links: ["https://www.tiktok.com/@keripiksingkong900"],
     stats: [
       { tag: "FOL", value: "1", color: "#00f2ea" },
@@ -58,17 +64,24 @@ export default function Socials() {
 
   useEffect(() => {
     const onKey = (e) => {
+      const activeItem = ITEMS[active] ?? ITEMS[0];
       if (focus === "left") {
         if (e.key === "ArrowUp")    setActive(i => Math.max(0, i - 1));
         if (e.key === "ArrowDown")  setActive(i => Math.min(ITEMS.length - 1, i + 1));
         if (e.key === "ArrowRight") { setFocus("right"); setActiveInfoBar(0); }
-        if (e.key === "Enter")      window.open(ITEMS[active].href, "_blank");
+        if (e.key === "Enter") {
+          const targetUrl = normalizeExternalUrl(activeItem?.href);
+          if (targetUrl) window.open(targetUrl, "_blank");
+        }
       } else {
-        const barCount = ITEMS[active].bars;
+        const barCount = activeItem?.bars ?? 1;
         if (e.key === "ArrowUp")   setActiveInfoBar(i => Math.max(0, i - 1));
         if (e.key === "ArrowDown") setActiveInfoBar(i => Math.min(barCount - 1, i + 1));
         if (e.key === "ArrowLeft") setFocus("left");
-        if (e.key === "Enter")     window.open("https://" + ITEMS[active].links[activeInfoBar], "_blank");
+        if (e.key === "Enter") {
+          const targetUrl = normalizeExternalUrl(activeItem?.links?.[activeInfoBar]);
+          if (targetUrl) window.open(targetUrl, "_blank");
+        }
       }
       if ((e.key === "ArrowLeft" && focus === "left") || e.key === "Escape" || e.key === "Backspace") navigate(-1);
     };
@@ -574,35 +587,43 @@ export default function Socials() {
         ))}
       </div>
 
-      {mounted && (
-        <div className="sc-right-nav" key={active}>
-          <span className="sc-nav-arrow left">◄</span>
-          <span className="sc-nav-btn">LB</span>
-          <span className="sc-nav-label">{ITEMS[active].label}</span>
-          <span className="sc-nav-btn">RB</span>
-          <span className="sc-nav-arrow right">►</span>
-        </div>
-      )}
+      {mounted && (() => {
+        const activeItem = ITEMS[active] ?? ITEMS[0];
+        return (
+          <>
+            <div className="sc-right-nav" key={active}>
+              <span className="sc-nav-arrow left">◄</span>
+              <span className="sc-nav-btn">LB</span>
+              <span className="sc-nav-label">{activeItem.label}</span>
+              <span className="sc-nav-btn">RB</span>
+              <span className="sc-nav-arrow right">►</span>
+            </div>
 
-      {mounted && Array.from({ length: ITEMS[active].bars }).map((_, i) => (
-        <div
-          className={`sc-info-bar-wrap${activeInfoBar === i ? " selected" : ""}`}
-          key={`bar-${active}-${i}`}
-          style={{ top: `${155 + i * 52}px`, animationDelay: `${i * 50}ms` }}
-          onClick={() => setActiveInfoBar(i)}
-          onMouseEnter={() => setActiveInfoBar(i)}
-        >
-          {ITEMS[active].newBars.includes(i) && (
-            <img className="sc-info-bar-new" src={newsign} alt="" />
-          )}
-          <div className="sc-info-bar">
-            <img className="sc-info-bar-icon" src={ITEMS[active].barIcon} alt="" />
-            <span className="sc-info-bar-text">{ITEMS[active].links[i].slice(0, 10)}...</span>
-            <span className="sc-info-bar-box">VIEWS</span>
-            <span className="sc-info-bar-count">{ITEMS[active].counts[i]}</span>
-          </div>
-        </div>
-      ))}
+            {Array.from({ length: activeItem.bars ?? 1 }).map((_, i) => {
+              const linkText = activeItem.links?.[i] ?? "";
+              return (
+                <div
+                  className={`sc-info-bar-wrap${activeInfoBar === i ? " selected" : ""}`}
+                  key={`bar-${active}-${i}`}
+                  style={{ top: `${155 + i * 52}px`, animationDelay: `${i * 50}ms` }}
+                  onClick={() => setActiveInfoBar(i)}
+                  onMouseEnter={() => setActiveInfoBar(i)}
+                >
+                  {(activeItem.newBars ?? []).includes(i) && (
+                    <img className="sc-info-bar-new" src={newsign} alt="" />
+                  )}
+                  <div className="sc-info-bar">
+                    <img className="sc-info-bar-icon" src={activeItem.barIcon ?? icon1} alt="" />
+                    <span className="sc-info-bar-text">{linkText ? `${linkText.slice(0, 10)}...` : ""}</span>
+                    <span className="sc-info-bar-box">VIEWS</span>
+                    <span className="sc-info-bar-count">{activeItem.counts?.[i] ?? "0"}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        );
+      })()}
 
       <div className={`sc-footer${mounted ? " mounted" : ""}`}>
         <div className="sc-footer-row"><span className="sc-footer-key">↑↓</span><span>SELECT</span></div>
