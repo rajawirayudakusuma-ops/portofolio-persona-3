@@ -85,7 +85,7 @@ export default function ArticlePage() {
   return (
     <div id="menu-screen">
       <video
-        src={bgVideo}
+        src={ARTICLE_VIDEO_SRC}
         autoPlay loop muted playsInline
         style={{
           position: "absolute",

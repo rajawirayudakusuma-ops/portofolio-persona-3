@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import bgMenuVideo from "./assets/bg.mp4";
+import { MENU_VIDEO_SRC } from "./mediaPaths";
 
 const ITEMS = [
   { id: "about",   label: "ABOUT ME",      page: "about",   fontSize: 80, offsetX: 0,  offsetY: 0,  skew: -6,  skewY: 10  },
@@ -45,7 +45,7 @@ export default function P3Menu({ onNavigate }) {
   return (
     <>
     <video
-        src={bgMenuVideo}
+        src={MENU_VIDEO_SRC}
         autoPlay
         loop
         muted

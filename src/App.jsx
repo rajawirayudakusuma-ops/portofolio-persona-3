@@ -1,12 +1,7 @@
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import main1 from './assets/main1.mp4'
-import main2 from './assets/main2.mp4'
-import main3 from './assets/main3.mp4'
-import main4 from './assets/main4.mp4'
-import main5 from './assets/main5.mp4'
-import main6 from './assets/main6.mp4'
+import { ROUTE_VIDEO_SRCS, BGM_AUDIO_SRC } from './mediaPaths'
 import P3Menu from './P3Menu'
 import VideoPage from './VideoPage'
 import ResumePage from './ResumePage'
@@ -25,7 +20,7 @@ function initializeBGM() {
   if (bgmAudio) return bgmAudio;
   
   bgmAudio = document.createElement('audio');
-  bgmAudio.src = '/bgm.mp3';
+  bgmAudio.src = BGM_AUDIO_SRC;
   bgmAudio.loop = true;
   bgmAudio.volume = 0.3;
   bgmAudio.id = 'app-bgm-audio';
@@ -146,17 +141,17 @@ function AnimatedRoutes() {
           <PageTransition variant="about"><AboutMe /></PageTransition>
         } />
         <Route path="/resume" element={
-          <PageTransition><ResumePage src={main6} /></PageTransition>
+          <PageTransition><ResumePage src={ROUTE_VIDEO_SRCS.main6} /></PageTransition>
         } />
         <Route path="/socials" element={
           <PageTransition variant="socials"><Socials /></PageTransition>
         } />
         {/* Articles page */}
         <Route path="/articles" element={
-          <PageTransition><ArticlePage src={main5} /></PageTransition>
+          <PageTransition><ArticlePage src={ROUTE_VIDEO_SRCS.main5} /></PageTransition>
         } />
         <Route path="/sideproj" element={
-          <PageTransition><SideProjPage src={main4} /></PageTransition>
+          <PageTransition><SideProjPage src={ROUTE_VIDEO_SRCS.main4} /></PageTransition>
         } />
       </Routes>
     </AnimatePresence>

@@ -90,7 +90,7 @@ export default function SideProjPage() {
   return (
     <div id="menu-screen">
       <video
-        src={bgVideo}
+        src={SIDEPROJ_VIDEO_SRC}
         autoPlay loop muted playsInline
         style={{
           position: "absolute",

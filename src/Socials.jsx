@@ -79,7 +79,7 @@ export default function Socials() {
   return (
     <div id="menu-screen">
       <video
-  src={bgVideo}
+  src={SOCIALS_VIDEO_SRC}
   autoPlay loop muted playsInline
   style={{
     position: 'absolute',
