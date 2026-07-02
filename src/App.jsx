@@ -1,84 +1,24 @@
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
-import { ROUTE_VIDEO_SRCS, BGM_AUDIO_SRC } from './mediaPaths'
+import { useEffect } from 'react'
+import { ROUTE_VIDEO_SRCS } from './mediaPaths'
 import P3Menu from './P3Menu'
-import VideoPage from './VideoPage'
 import ResumePage from './ResumePage'
 import PageTransition from './PageTransition'
 import Socials from './Socials'
 import AboutMe from './AboutMe'
 import ArticlePage from './ArticlePage'
 import SideProjPage from './SideProjPage'
+import { AudioProvider, useAudio } from './AudioProvider'
 import './App.css'
 
-// Module-level persistent audio element and mute state
-let bgmAudio = null;
-let bgmIsMuted = true; // Track mute state globally
-
-function initializeBGM() {
-  if (bgmAudio) return bgmAudio;
-  
-  bgmAudio = document.createElement('audio');
-  bgmAudio.src = BGM_AUDIO_SRC;
-  bgmAudio.loop = true;
-  bgmAudio.volume = 0.3;
-  bgmAudio.id = 'app-bgm-audio';
-  document.body.appendChild(bgmAudio);
-  
-  return bgmAudio;
-}
-
-function startBGMPlayback() {
-  if (!bgmAudio) bgmAudio = initializeBGM();
-  
-  if (bgmIsMuted) return; // Don't play if muted
-  
-  if (bgmAudio.paused) {
-    bgmAudio.play()
-      .then(() => console.log('BGM started'))
-      .catch(err => console.log('BGM autoplay blocked:', err));
-  }
-}
-
-function stopBGMPlayback() {
-  if (bgmAudio && !bgmAudio.paused) {
-    bgmAudio.pause();
-  }
-}
-
-function toggleBGM() {
-  if (!bgmAudio) bgmAudio = initializeBGM();
-  
-  bgmIsMuted = !bgmIsMuted; // Toggle global mute state
-  
-  if (bgmIsMuted) {
-    stopBGMPlayback();
-  } else {
-    startBGMPlayback();
-  }
-}
-
 function MuteButton() {
-  const [isMuted, setIsMuted] = useState(true);
-
-  useEffect(() => {
-    const handleToggle = () => {
-      const newState = !bgmIsMuted;
-      setIsMuted(newState);
-      toggleBGM();
-    };
-
-    const btn = document.getElementById('bgm-mute-btn');
-    if (btn) {
-      btn.addEventListener('click', handleToggle);
-      return () => btn.removeEventListener('click', handleToggle);
-    }
-  }, []);
+  const { isMuted, toggleMute } = useAudio();
 
   return (
     <button
       id="bgm-mute-btn"
+      onClick={toggleMute}
       style={{
         position: 'fixed',
         bottom: '20px',
@@ -103,7 +43,7 @@ function MuteButton() {
         e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
       }}
     >
-      {bgmIsMuted ? '🔇 BGM' : '🔊 BGM'}
+      {isMuted ? '🔇 BGM' : '🔊 BGM'}
     </button>
   );
 }
@@ -119,17 +59,15 @@ function MenuScreen() {
 
 function AnimatedRoutes() {
   const location = useLocation()
+  const { resumePlayback } = useAudio()
   
   useEffect(() => {
-    // Resume BGM after page transition (only if not muted)
-    setTimeout(() => {
-      if (!bgmIsMuted && bgmAudio && bgmAudio.paused) {
-        bgmAudio.play()
-          .then(() => console.log('BGM resumed after route change'))
-          .catch(err => console.log('BGM resume blocked:', err));
-      }
+    const timer = window.setTimeout(() => {
+      resumePlayback();
     }, 100);
-  }, [location.pathname]);
+
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, resumePlayback]);
   
   return (
     <AnimatePresence mode="wait">
@@ -158,31 +96,21 @@ function AnimatedRoutes() {
   )
 }
 
-export default function App() {
+function AppShell() {
+  const { resumePlayback } = useAudio();
+
   useEffect(() => {
-    // Initialize audio on mount
-    initializeBGM();
-
-    // Try to play immediately
-    startBGMPlayback();
-
-    // Try on visibility change
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        startBGMPlayback();
+        resumePlayback();
       }
     };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Try on user interaction
     const handleUserInteraction = () => {
-      startBGMPlayback();
-      // Remove listeners after first interaction to avoid repeated attempts
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
+      resumePlayback();
     };
 
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     document.addEventListener('click', handleUserInteraction);
     document.addEventListener('keydown', handleUserInteraction);
     document.addEventListener('touchstart', handleUserInteraction);
@@ -193,12 +121,20 @@ export default function App() {
       document.removeEventListener('keydown', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
     };
-  }, []);
+  }, [resumePlayback]);
 
   return (
     <>
       <AnimatedRoutes />
       <MuteButton />
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <AudioProvider>
+      <AppShell />
+    </AudioProvider>
   );
 }
