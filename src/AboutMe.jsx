@@ -4,6 +4,7 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import { ABOUT_VIDEO_SRC } from "./mediaPaths";
+import { useLoading } from "./context/LoadingContext";
 import icon1 from "./assets/icon1.png";
 import icon2 from "./assets/icon2.png";
 import icon3 from "./assets/icon3.png";
@@ -75,6 +76,11 @@ export default function AboutMe() {
   const [mounted, setMounted] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const navigate = useNavigate();
+  const { beginLoad, videoRef, isReady } = useLoading();
+
+  useEffect(() => {
+    beginLoad(ABOUT_VIDEO_SRC);
+  }, [beginLoad]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);
@@ -101,8 +107,8 @@ export default function AboutMe() {
   }, [active, navigate, revealed]);
 
   return (
-    <div id="menu-screen">
-      <video src={ABOUT_VIDEO_SRC} autoPlay loop muted playsInline />
+    <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
+      <video ref={videoRef} src={ABOUT_VIDEO_SRC} autoPlay loop muted playsInline preload="auto" />
       {revealed && <div key={`dim-${active}`} className="sc-dim" />}
       {revealed && (
         <div key={`panel-${active}`} className={`sc-reveal-panel${mounted ? " mounted" : ""}`}>

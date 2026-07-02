@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLoading } from "./context/LoadingContext";
 
 const ITEMS = [
   { id: "i",   badge: "I",   title: "EDUCATION",  subtitle: "SMAN 15 / UPI",              rank: 4 },
@@ -77,6 +78,11 @@ export default function ResumePage({ src }) {
   const navigate = useNavigate();
   const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const { beginLoad, videoRef, isReady } = useLoading();
+
+  useEffect(() => {
+    beginLoad(src);
+  }, [beginLoad, src]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 80);
@@ -97,8 +103,8 @@ export default function ResumePage({ src }) {
   const detail = DETAIL_DATA[active];
 
   return (
-    <div id="menu-screen">
-      <video src={src} autoPlay loop muted playsInline style={{
+    <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
+      <video ref={videoRef} src={src} autoPlay loop muted playsInline preload="auto" style={{
   objectFit: 'contain',
   objectPosition: 'right center',
   width: '100%',
@@ -115,7 +121,7 @@ export default function ResumePage({ src }) {
 }} />
 
 <div className="resume-entry-mask">
-  <video className="resume-entry-video" src={src} autoPlay loop muted playsInline style={{
+  <video className="resume-entry-video" ref={videoRef} src={src} autoPlay loop muted playsInline preload="auto" style={{
     transform: 'scaleX(-1)',
     objectFit: 'contain',
     objectPosition: 'right center',

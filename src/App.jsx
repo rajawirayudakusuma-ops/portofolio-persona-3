@@ -10,6 +10,7 @@ import AboutMe from './AboutMe'
 import ArticlePage from './ArticlePage'
 import SideProjPage from './SideProjPage'
 import { AudioProvider, useAudio } from './AudioProvider'
+import { LoadingProvider } from './context/LoadingContext'
 import './App.css'
 
 function MuteButton() {
@@ -134,7 +135,9 @@ function AppShell() {
 export default function App() {
   return (
     <AudioProvider>
-      <AppShell />
+      <LoadingProvider>
+        <AppShell />
+      </LoadingProvider>
     </AudioProvider>
   );
 }

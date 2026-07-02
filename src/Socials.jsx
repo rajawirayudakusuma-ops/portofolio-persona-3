@@ -4,6 +4,7 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import { SOCIALS_VIDEO_SRC } from "./mediaPaths";
+import { useLoading } from "./context/LoadingContext";
 import newsign from "./assets/newsign.png";
 import icon1 from "./assets/icon1.png";
 import icon2 from "./assets/icon2.png";
@@ -56,6 +57,11 @@ export default function Socials() {
   const [activeInfoBar, setActiveInfoBar] = useState(0);
   const [focus, setFocus]                 = useState("left"); // "left" | "right"
   const navigate = useNavigate();
+  const { beginLoad, videoRef, isReady } = useLoading();
+
+  useEffect(() => {
+    beginLoad(SOCIALS_VIDEO_SRC);
+  }, [beginLoad]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);
@@ -90,10 +96,11 @@ export default function Socials() {
   }, [active, navigate, focus]);
 
   return (
-    <div id="menu-screen">
+    <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
       <video
+  ref={videoRef}
   src={SOCIALS_VIDEO_SRC}
-  autoPlay loop muted playsInline
+  autoPlay loop muted playsInline preload="auto"
   style={{
     position: 'absolute',
     inset: 0,

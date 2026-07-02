@@ -4,6 +4,7 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import { SIDEPROJ_VIDEO_SRC } from "./mediaPaths";
+import { useLoading } from "./context/LoadingContext";
 import sideproj1 from "./assets/sideproj1.jpg";
 import sideproj2 from "./assets/sideproj2.jpg";
 import sideproj3 from "./assets/sideproj3.png";
@@ -70,6 +71,11 @@ export default function SideProjPage() {
   const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
+  const { beginLoad, videoRef, isReady } = useLoading();
+
+  useEffect(() => {
+    beginLoad(SIDEPROJ_VIDEO_SRC);
+  }, [beginLoad]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);
@@ -88,10 +94,11 @@ export default function SideProjPage() {
   }, [active, navigate]);
 
   return (
-    <div id="menu-screen">
+    <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
       <video
+        ref={videoRef}
         src={SIDEPROJ_VIDEO_SRC}
-        autoPlay loop muted playsInline
+        autoPlay loop muted playsInline preload="auto"
         style={{
           position: "absolute",
           inset: 0,

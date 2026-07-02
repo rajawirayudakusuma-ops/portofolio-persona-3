@@ -4,6 +4,7 @@ import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import { ARTICLE_VIDEO_SRC } from "./mediaPaths";
+import { useLoading } from "./context/LoadingContext";
 import article1 from "./assets/article1.jpg";
 import article2 from "./assets/article2.jpg";
 import article3 from "./assets/article3.jpg";
@@ -65,6 +66,11 @@ export default function ArticlePage() {
   const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
+  const { beginLoad, videoRef, isReady } = useLoading();
+
+  useEffect(() => {
+    beginLoad(ARTICLE_VIDEO_SRC);
+  }, [beginLoad]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);
@@ -83,10 +89,11 @@ export default function ArticlePage() {
   }, [active, navigate]);
 
   return (
-    <div id="menu-screen">
+    <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
       <video
+        ref={videoRef}
         src={ARTICLE_VIDEO_SRC}
-        autoPlay loop muted playsInline
+        autoPlay loop muted playsInline preload="auto"
         style={{
           position: "absolute",
           inset: 0,
