@@ -43,7 +43,6 @@ export function MediaProvider({ children }) {
 
   // intelligent preload: after first page ready, queue other videos
   const startBackgroundPreload = useCallback(() => {
-    const cache = videoCacheRef.current;
     if (!cache) return;
     const all = Object.values(ROUTE_VIDEO_SRCS);
     // don't block UI: iterate and ensure each
@@ -74,38 +73,57 @@ export function MediaProvider({ children }) {
       // attach video element into container
       const videoEl = entry.video;
       if (container && container instanceof HTMLElement) {
-        // keep previous video in place until new one mounted
-        // remove any existing children that were previously mounted for this container
-        // but only after new video is ready and appended
-        videoEl.style.position = 'absolute';
-        videoEl.style.inset = '0';
-        videoEl.style.width = '100%';
-        videoEl.style.height = '100%';
-        videoEl.style.objectFit = 'cover';
-        videoEl.style.zIndex = '0';
-        videoEl.style.pointerEvents = 'none';
-        videoEl.muted = true;
+        // Prepare a node to append. If the cached master video is already
+        // attached to a different container (or in use), clone it to avoid
+        // moving the master node and causing a flash on the previous page.
+        let nodeToAppend = videoEl;
 
-        // ensure it's playing (muted autoplay allowed)
-        try {
-          await videoEl.play();
-        } catch (e) {
-          // ignore play errors; canplaythrough ensured readiness
-        }
-
-        // Append after play attempt to avoid flashing
-        container.appendChild(videoEl);
-
-        // remove earlier mounted video if any different src
-        const prev = mountedContainers.current.get(container);
-        if (prev && prev !== src) {
-          const prevVideo = videoCacheRef.current.get(prev);
-          if (prevVideo && prevVideo.parentElement === container) {
-            container.removeChild(prevVideo);
+        const isAttachedElsewhere = videoEl.parentElement && videoEl.parentElement !== container;
+        if (isAttachedElsewhere) {
+          // clone the element; cloneNode(true) copies attributes but not playback state.
+          // This keeps the original visible where it is and shows the clone in the new container.
+          nodeToAppend = videoEl.cloneNode(true);
+          nodeToAppend.setAttribute('data-media-clone', '1');
+          // keep styling consistent
+          nodeToAppend.style.position = 'absolute';
+          nodeToAppend.style.inset = '0';
+          nodeToAppend.style.width = '100%';
+          nodeToAppend.style.height = '100%';
+          nodeToAppend.style.objectFit = 'cover';
+          nodeToAppend.style.zIndex = '0';
+          nodeToAppend.style.pointerEvents = 'none';
+          nodeToAppend.muted = true;
+          try {
+            // attempt playback on clone (muted autoplay typically allowed)
+            await nodeToAppend.play();
+          } catch (e) {
+            // ignore
+          }
+        } else {
+          nodeToAppend = videoEl;
+          nodeToAppend.style.position = 'absolute';
+          nodeToAppend.style.inset = '0';
+          nodeToAppend.style.width = '100%';
+          nodeToAppend.style.height = '100%';
+          nodeToAppend.style.objectFit = 'cover';
+          nodeToAppend.style.zIndex = '0';
+          nodeToAppend.style.pointerEvents = 'none';
+          nodeToAppend.muted = true;
+          try {
+            await nodeToAppend.play();
+          } catch (e) {
+            // ignore
           }
         }
 
-        mountedContainers.current.set(container, src);
+        // remove earlier mounted node for this container if different
+        const prev = mountedContainers.current.get(container);
+        if (prev && prev.src !== src && prev.node && prev.node.parentElement === container) {
+          try { container.removeChild(prev.node); } catch (e) { /* ignore */ }
+        }
+
+        container.appendChild(nodeToAppend);
+        mountedContainers.current.set(container, { src, node: nodeToAppend });
       }
 
       setLoadingProgress(100);

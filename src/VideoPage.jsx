@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import useMedia from './hooks/useMedia'
 
 export default function VideoPage({ src }) {
   const navigate = useNavigate()
@@ -14,16 +15,7 @@ export default function VideoPage({ src }) {
 
   return (
     <div style={{position:'relative',width:'100vw',height:'100vh',overflow:'hidden',background:'#04060f'}}>
-      <video
-        src={src}
-        autoPlay loop muted playsInline
-        style={{
-          position:'absolute',inset:0,
-          width:'100%',height:'100%',
-          objectFit:'cover',
-          opacity:1,zIndex:0
-        }}
-      />
+      <VideoBackground src={src} />
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');`}</style>
 
       {/* Tombol back — bisa diklik mouse */}
@@ -54,4 +46,17 @@ export default function VideoPage({ src }) {
       </div>
     </div>
   )
+}
+
+function VideoBackground({ src }) {
+  const { requestBackground, loading } = useMedia();
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (containerRef.current) requestBackground(src, containerRef.current);
+  }, [src, requestBackground]);
+
+  const isReady = !loading.visible;
+
+  return <div ref={containerRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />;
 }
