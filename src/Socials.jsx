@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import { SOCIALS_VIDEO_SRC } from "./mediaPaths";
-import { useLoading } from "./context/LoadingContext";
+import useMedia from './hooks/useMedia';
 import newsign from "./assets/newsign.png";
 import icon1 from "./assets/icon1.png";
 import icon2 from "./assets/icon2.png";
@@ -57,11 +57,13 @@ export default function Socials() {
   const [activeInfoBar, setActiveInfoBar] = useState(0);
   const [focus, setFocus]                 = useState("left"); // "left" | "right"
   const navigate = useNavigate();
-  const { beginLoad, videoRef, isReady } = useLoading();
+  const { requestBackground, loading } = useMedia();
+  const bgRef = useRef(null);
+  const isReady = !loading.visible;
 
   useEffect(() => {
-    beginLoad(SOCIALS_VIDEO_SRC);
-  }, [beginLoad]);
+    if (bgRef.current) requestBackground(SOCIALS_VIDEO_SRC, bgRef.current);
+  }, [requestBackground]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);
@@ -97,22 +99,7 @@ export default function Socials() {
 
   return (
     <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
-      <video
-  ref={videoRef}
-  src={SOCIALS_VIDEO_SRC}
-  autoPlay loop muted playsInline preload="auto"
-  style={{
-    position: 'absolute',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    opacity: 1,
-    zIndex: 0,
-    pointerEvents: 'none',
-    transform: 'scaleX(-1)',
-  }}
-/>
+      <div ref={bgRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,700;1,700&display=swap');
 

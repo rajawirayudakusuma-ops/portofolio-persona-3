@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoading } from "./context/LoadingContext";
+import useMedia from './hooks/useMedia';
 
 const ITEMS = [
   { id: "i",   badge: "I",   title: "EDUCATION",  subtitle: "SMAN 15 / UPI",              rank: 4 },
@@ -78,11 +78,13 @@ export default function ResumePage({ src }) {
   const navigate = useNavigate();
   const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const { beginLoad, videoRef, isReady } = useLoading();
+  const { requestBackground, loading } = useMedia();
+  const bgRef = useRef(null);
+  const isReady = !loading.visible;
 
   useEffect(() => {
-    beginLoad(src);
-  }, [beginLoad, src]);
+    if (bgRef.current) requestBackground(src, bgRef.current);
+  }, [requestBackground, src]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 80);
@@ -104,29 +106,11 @@ export default function ResumePage({ src }) {
 
   return (
     <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
-      <video ref={videoRef} src={src} autoPlay loop muted playsInline preload="auto" style={{
-  objectFit: 'contain',
-  objectPosition: 'right center',
-  width: '100%',
-  height: '100%',
-  left: '0',
-  right: '0',
-  top: '0',
-  position: 'absolute',
-  opacity: 0.85,
-  zIndex: 0,
-  pointerEvents: 'none',
-  transform: 'scaleX(-1)',
-  background: 'transparent',
-}} />
+      <div ref={bgRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />
 
-<div className="resume-entry-mask">
-  <video className="resume-entry-video" ref={videoRef} src={src} autoPlay loop muted playsInline preload="auto" style={{
-    transform: 'scaleX(-1)',
-    objectFit: 'contain',
-    objectPosition: 'right center',
-  }} />
-</div>
+      <div className="resume-entry-mask">
+        <div className="resume-entry-video" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&display=swap');

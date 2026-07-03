@@ -9,12 +9,12 @@ import Socials from './Socials'
 import AboutMe from './AboutMe'
 import ArticlePage from './ArticlePage'
 import SideProjPage from './SideProjPage'
-import { AudioProvider, useAudio } from './AudioProvider'
-import { LoadingProvider } from './context/LoadingContext'
+import MediaProvider, { useMedia } from './context/MediaProvider'
 import './App.css'
 
 function MuteButton() {
-  const { isMuted, toggleMute } = useAudio();
+  const { getAudio } = useMedia();
+  const { isMuted, toggleMute } = getAudio();
 
   return (
     <button
@@ -60,14 +60,12 @@ function MenuScreen() {
 
 function AnimatedRoutes() {
   const location = useLocation()
-  const { resumePlayback } = useAudio()
+  const { getAudio } = useMedia()
+  const { resumePlayback } = getAudio();
   
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      resumePlayback();
-    }, 100);
-
-    return () => window.clearTimeout(timer);
+    // ensure audio resumes on navigation if needed
+    void resumePlayback();
   }, [location.pathname, resumePlayback]);
   
   return (
@@ -98,7 +96,8 @@ function AnimatedRoutes() {
 }
 
 function AppShell() {
-  const { resumePlayback } = useAudio();
+  const { getAudio } = useMedia();
+  const { resumePlayback } = getAudio();
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -134,10 +133,8 @@ function AppShell() {
 
 export default function App() {
   return (
-    <AudioProvider>
-      <LoadingProvider>
-        <AppShell />
-      </LoadingProvider>
-    </AudioProvider>
+    <MediaProvider>
+      <AppShell />
+    </MediaProvider>
   );
 }

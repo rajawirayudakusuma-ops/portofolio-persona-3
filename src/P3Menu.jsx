@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MENU_VIDEO_SRC } from "./mediaPaths";
-import { useLoading } from "./context/LoadingContext";
+import useMedia from "./hooks/useMedia";
 
 const ITEMS = [
   { id: "about",   label: "ABOUT ME",      page: "about",   fontSize: 80, offsetX: 0,  offsetY: 0,  skew: -6,  skewY: 10  },
@@ -22,7 +22,9 @@ export default function P3Menu({ onNavigate }) {
   const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [animKey, setAnimKey] = useState(0);
-  const { beginLoad, videoRef, isReady } = useLoading();
+  const { requestBackground, loading } = useMedia();
+  const bgRef = useRef(null);
+  const isReady = !loading.visible;
 
   const activate = (idx) => {
     setActive(idx);
@@ -30,8 +32,8 @@ export default function P3Menu({ onNavigate }) {
   };
 
   useEffect(() => {
-    beginLoad(MENU_VIDEO_SRC);
-  }, [beginLoad]);
+    if (bgRef.current) requestBackground(MENU_VIDEO_SRC, bgRef.current);
+  }, [requestBackground]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 1000);
@@ -50,28 +52,7 @@ export default function P3Menu({ onNavigate }) {
 
   return (
     <>
-    <video
-        ref={videoRef}
-        src={MENU_VIDEO_SRC}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        style={{
-  position: 'absolute',
-  inset: 0,
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-  objectPosition: 'center center',
-  opacity: 1,
-  zIndex: 0,
-  pointerEvents: 'none',
-  transform: 'scale(1.02)',
-  transformOrigin: 'center center',
-        }}
-      />
+      <div ref={bgRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />
       <div style={{ position: 'absolute', inset: 0, opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'auto' : 'none' }}>
       <style>{`
         .p3-overlay {

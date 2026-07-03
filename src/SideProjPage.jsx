@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import char1 from "./assets/char1.png";
 import char2 from "./assets/char2.png";
 import char3 from "./assets/char3.png";
 import { SIDEPROJ_VIDEO_SRC } from "./mediaPaths";
-import { useLoading } from "./context/LoadingContext";
+import useMedia from './hooks/useMedia';
 import sideproj1 from "./assets/sideproj1.jpg";
 import sideproj2 from "./assets/sideproj2.jpg";
 import sideproj3 from "./assets/sideproj3.png";
@@ -71,11 +71,13 @@ export default function SideProjPage() {
   const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
-  const { beginLoad, videoRef, isReady } = useLoading();
+  const { requestBackground, loading } = useMedia();
+  const bgRef = useRef(null);
+  const isReady = !loading.visible;
 
   useEffect(() => {
-    beginLoad(SIDEPROJ_VIDEO_SRC);
-  }, [beginLoad]);
+    if (bgRef.current) requestBackground(SIDEPROJ_VIDEO_SRC, bgRef.current);
+  }, [requestBackground]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);
@@ -95,22 +97,7 @@ export default function SideProjPage() {
 
   return (
     <div id="menu-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 300ms ease', pointerEvents: isReady ? 'all' : 'none' }}>
-      <video
-        ref={videoRef}
-        src={SIDEPROJ_VIDEO_SRC}
-        autoPlay loop muted playsInline preload="auto"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          opacity: 1,
-          zIndex: 0,
-          pointerEvents: "none",
-          transform: "scaleX(-1)",
-        }}
-      />
+      <div ref={bgRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&display=swap');
