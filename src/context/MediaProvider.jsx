@@ -7,8 +7,9 @@ import { ROUTE_VIDEO_SRCS, BGM_AUDIO_SRC } from '../mediaPaths';
 const MediaContext = createContext(null);
 
 export function MediaProvider({ children }) {
-  const videoCacheRef = useRef(null);
-  const audioManagerRef = useRef(null);
+  // initialize synchronously on first render to avoid race conditions
+  const videoCacheRef = useRef(createVideoCache());
+  const audioManagerRef = useRef(createAudioManager(BGM_AUDIO_SRC, { volume: 0.3 }));
   const mountedContainers = useRef(new Map()); // src -> container
 
   const [loadingVisible, setLoadingVisible] = useState(true);
@@ -17,9 +18,6 @@ export function MediaProvider({ children }) {
   const [currentSrc, setCurrentSrc] = useState(null);
 
   useEffect(() => {
-    videoCacheRef.current = createVideoCache();
-    audioManagerRef.current = createAudioManager(BGM_AUDIO_SRC, { volume: 0.3 });
-
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const onChange = () => setReducedMotion(mq.matches);
     onChange();
@@ -43,6 +41,7 @@ export function MediaProvider({ children }) {
 
   // intelligent preload: after first page ready, queue other videos
   const startBackgroundPreload = useCallback(() => {
+    const cache = videoCacheRef.current;
     if (!cache) return;
     const all = Object.values(ROUTE_VIDEO_SRCS);
     // don't block UI: iterate and ensure each

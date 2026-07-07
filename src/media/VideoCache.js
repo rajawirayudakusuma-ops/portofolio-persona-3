@@ -38,56 +38,63 @@ export default function createVideoCache() {
       readyState: 0,
     };
 
-    function cleanupListeners() {
-      video.removeEventListener('loadeddata', onLoadedData);
-      video.removeEventListener('canplaythrough', onCanPlayThrough);
-      video.removeEventListener('error', onError);
-      video.removeEventListener('stalled', onStalled);
+    function cleanupListeners(el = entry.video) {
+      try {
+        el.removeEventListener('loadeddata', onLoadedData);
+        el.removeEventListener('canplaythrough', onCanPlayThrough);
+        el.removeEventListener('error', onError);
+        el.removeEventListener('stalled', onStalled);
+      } catch (e) {
+        // ignore
+      }
     }
 
-    function markReady() {
+    function markReady(v) {
+      const vid = v || entry.video;
       entry.status = 'ready';
-      entry.readyState = video.readyState;
-      cleanupListeners();
+      entry.readyState = vid.readyState;
+      cleanupListeners(vid);
       entry.resolve(entry);
     }
 
-    function onLoadedData() {
-      entry.readyState = video.readyState;
+    function onLoadedData(e) {
+      const v = e?.currentTarget || entry.video;
+      entry.readyState = v.readyState;
       // don't resolve yet; wait for canplaythrough for reliable playback
     }
 
-    function onCanPlayThrough() {
-      markReady();
+    function onCanPlayThrough(e) {
+      const v = e?.currentTarget || entry.video;
+      markReady(v);
     }
 
     function onStalled() {
       // treat as not ready; allow retries via error
     }
 
-    function onError() {
-      cleanupListeners();
+    function onError(e) {
+      const failedEl = e?.currentTarget || entry.video;
+      cleanupListeners(failedEl);
       entry.status = 'error';
       if (entry.retries < DEFAULT_RETRIES) {
         entry.retries += 1;
-        // try again after a short backoff but not using setTimeout for loading screen
         // create a replacement element to retry
-        const nv = makeVideoElement(src + (entry.retries === 1 ? '' : ''));
+        const nv = makeVideoElement(src);
+        // replace the entry.video after removing listeners from failedEl
         entry.video = nv;
-        video.removeAttribute('src');
-        video.load?.();
-        // reattach listeners
+        // attach listeners to the new element
         nv.addEventListener('loadeddata', onLoadedData);
         nv.addEventListener('canplaythrough', onCanPlayThrough);
         nv.addEventListener('error', onError);
         nv.addEventListener('stalled', onStalled);
         // start load
-        nv.load();
+        try { nv.load(); } catch (err) { /* ignore */ }
       } else {
         entry.reject(new Error('failed-to-load'));
       }
     }
 
+    // attach listeners to the initial video element
     video.addEventListener('loadeddata', onLoadedData);
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('error', onError);
@@ -98,6 +105,15 @@ export default function createVideoCache() {
       video.load();
     } catch (e) {
       // some browsers may throw, let events handle it
+    }
+
+    // if already in a playable readyState, resolve immediately
+    try {
+      if (video.readyState >= 3) {
+        markReady(video);
+      }
+    } catch (e) {
+      // ignore
     }
 
     map.set(src, entry);
